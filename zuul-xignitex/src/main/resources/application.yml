@@ -1,0 +1,35 @@
+zuul:
+  routes:
+    service_1:
+      path: /api/service_1/**
+      url: http://localhost:8081/
+    service_2:
+      path: /api/service_2/**
+      url: http://localhost:8082/
+  ratelimit:
+    key-prefix: xignitex
+    enabled: true
+    repository: REDIS
+    behind-proxy: true
+    add-response-headers: true
+    default-policy-list: #optional - will apply unless specific policy exists
+      - limit: 10 #optional - request number limit per refresh interval window
+        quota: 1000 #optional - request time limit per refresh interval window (in seconds)
+        refresh-interval: 60 #default value (in seconds)
+        type: #optional
+          - user
+          - origin
+          - url
+          - http_method
+    policy-list:
+      service_1:
+        - limit: 5
+          refresh-interval: 60
+          type:
+            - origin
+      service_2:
+        - limit: 1
+          refresh-interval: 2
+          type:
+            - origin
+    strip-prefix: true
